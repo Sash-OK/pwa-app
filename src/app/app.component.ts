@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UserNotificationService } from './modules/notification/services/user-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'pwa-app';
+  constructor(private notifySrv: UserNotificationService) {
+    this.notifySrv.init();
+  }
 }

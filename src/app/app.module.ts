@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { NotifyModule } from './modules/notify/notify.module';
+import { MyNotificationModule } from './modules/notification/my-notification.module';
 
 @NgModule({
   declarations: [
@@ -10,7 +10,7 @@ import { NotifyModule } from './modules/notify/notify.module';
   ],
   imports: [
     BrowserModule,
-    NotifyModule.forRoot(),
+    MyNotificationModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

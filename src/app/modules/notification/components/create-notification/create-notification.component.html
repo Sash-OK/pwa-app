@@ -1,0 +1,9 @@
+<form [formGroup]="form" (ngSubmit)="addNotification()">
+  <label for="msg">message</label>
+  <input id="msg" type="text" required formControlName="message">
+
+  <label for="datetime">datetime</label>
+  <input id="datetime" type="datetime-local" required formControlName="dateTime">
+
+  <button type="submit" [disabled]="form.invalid">Add</button>
+</form>
