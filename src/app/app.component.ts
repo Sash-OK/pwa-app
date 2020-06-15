@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { UserNotificationService } from './modules/notification/services/user-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +6,4 @@ import { UserNotificationService } from './modules/notification/services/user-no
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private notifySrv: UserNotificationService) {
-    this.notifySrv.init();
-  }
 }

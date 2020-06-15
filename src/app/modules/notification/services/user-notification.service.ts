@@ -1,21 +1,17 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { IndexedDBService } from '../../data-store/services/indexed-db.service';
 import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject } from 'rxjs';
 import * as moment from 'moment';
+import { StoreDriverService } from '../../data-store/services/store-driver.service';
 
 @Injectable()
 export class UserNotificationService implements OnDestroy {
+  public messages = [];
   private readonly isAPISupported: boolean;
   private hasPermission$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public messages = [];
 
-  constructor(private db: IndexedDBService) {
+  constructor(private storeSrv: StoreDriverService) {
     this.isAPISupported = 'Notification' in window;
-  }
-
-  public init() {
-    this.db.open('my-notifications-store', 1);
   }
 
   public getPermission() {
@@ -33,16 +29,19 @@ export class UserNotificationService implements OnDestroy {
     }
   }
 
-  public add({message, dateTime}: NotificationModel) {
-    if (this.isAPISupported) {
+  public add(message: NotificationModel) {
+    return this.storeSrv.addNotification({...message}).subscribe((data) => {
+      console.log('addNotification', data);
+    });
+    /*if (this.isAPISupported) {
       this.getPermission();
     }
 
     const t = moment(dateTime).valueOf();
     this.messages.push(new Notification('My notify', {
       body: message,
-      timestamp: t,
-    }));
+      timestamp: t
+    }));*/
   }
 
   public ngOnDestroy() {
