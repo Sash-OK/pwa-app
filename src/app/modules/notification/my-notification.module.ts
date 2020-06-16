@@ -7,6 +7,7 @@ import { NotificationListItemComponent } from './components/notification-list-it
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MySwService } from './services/my-sw.service';
+import { RequestModule } from '../request/request.module';
 
 @NgModule({
   declarations: [
@@ -17,11 +18,12 @@ import { MySwService } from './services/my-sw.service';
   imports: [
     DataStoreModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    RequestModule,
   ],
   exports: [
     CreateNotificationComponent,
-    NotificationsListComponent
+    NotificationsListComponent,
   ],
   providers: [
     UserNotificationService,
