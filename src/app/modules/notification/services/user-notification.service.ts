@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { NotificationModel } from '../models/notification.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
-import { finalize } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 
 @Injectable()
 export class UserNotificationService implements OnDestroy {
@@ -46,7 +46,16 @@ export class UserNotificationService implements OnDestroy {
   public add(message: NotificationModel) {
     this.startLoading();
     this.storeSrv.addNotification(message)
-      .pipe(finalize(this.finishLoading.bind(this)))
+      .pipe(
+        finalize(this.finishLoading.bind(this)),
+        catchError((error) => {
+          if (error.error.needSync) {
+            debugger;
+          }
+
+          return throwError(error);
+        })
+      )
       .subscribe(this.fetchNotifications.bind(this));
   }
 

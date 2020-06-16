@@ -10,7 +10,7 @@ export class StoreDriverService {
   }
 
   public addNotification(message: NotificationModel): Observable<NotificationModel> {
-    return this.request.to('notifications').post<NotificationModel>(message);
+    return this.request.to('notifications_111').post<NotificationModel>(message);
   }
 
   public getNotifications(): Observable<NotificationModel[]> {

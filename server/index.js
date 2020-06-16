@@ -4,6 +4,7 @@ const port = 3000;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
+const urlBase = '/api';
 const notifications = [];
 let increment = 0;
 
@@ -13,11 +14,11 @@ app.use(bodyParser.json());
 
 app.options('*', cors());
 
-app.get('/notifications', (request, response) => {
+app.get(`${urlBase}/notifications`, (request, response) => {
   response.send(notifications);
 });
 
-app.post('/notifications', (request, response) => {
+app.post(`${urlBase}/notifications`, (request, response) => {
   const message = {...request.body, id: increment++};
   notifications.push(message);
   response.send(message);

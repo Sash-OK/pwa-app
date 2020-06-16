@@ -7,6 +7,7 @@ self.addEventListener('install', (ev) => {
     caches.open(CACHE_ID).then((cache) => {
       cache.addAll([
         '/',
+        'http://localhost:3000/api/notifications_111',
         '/runtime.js',
         '/polyfills.js',
         '/styles.js',
@@ -32,10 +33,44 @@ self.addEventListener('activate', ev => {
 });
 
 self.addEventListener('fetch', ev => {
-  return ev.respondWith(requestHandler(ev.request.url));
+  if (ev.request.url.includes('api/')) {
+    return ev.respondWith(apiRequestHandler(ev.request));
+  }
+
+  ev.respondWith(resourceRequestHandler(ev.request.url));
 });
 
-self.addEventListener('sync', (ev) => {
+function apiRequestHandler(request) {
+  const errorResponse = () => {
+    return new Response(JSON.stringify({needSync: true}), {
+      headers: {'Content-Type': 'application/json'},
+      status: 500,
+      ok: false
+    });
+  }
+
+  if (navigator.onLine) {
+    if (request.method === 'POST') {
+      return fetch(request.clone())
+        .then(
+          resp => {
+            if (!resp.ok) {
+              throw Error('Error');
+            }
+
+            return resp;
+          }
+        )
+        .catch(errorResponse);
+    }
+
+    return fetch(request.clone());
+  }
+
+  return errorResponse();
+}
+
+/*self.addEventListener('sync', (ev) => {
   console.log('sync event', ev);
   if (ev.tag === 'showNotifications') {
     ev.waitUntil(syncHandler());
@@ -44,7 +79,7 @@ self.addEventListener('sync', (ev) => {
 
 self.addEventListener('message', (ev) => {
   ev.waitUntil(showMessage(ev.data));
-});
+});*/
 
 async function syncHandler() {
   const notifications = await getNotifications();
@@ -71,7 +106,7 @@ function showMessage(message) {
   });
 }
 
-async function requestHandler(url) {
+async function resourceRequestHandler(url) {
   const cached = await caches.match(url);
   return cached || fetch(url);
 }
