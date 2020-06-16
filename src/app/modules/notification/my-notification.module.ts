@@ -6,6 +6,7 @@ import { NotificationsListComponent } from './components/notifications-list/noti
 import { NotificationListItemComponent } from './components/notification-list-item/notification-list-item.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MySwService } from './services/my-sw.service';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { CommonModule } from '@angular/common';
     NotificationsListComponent
   ],
   providers: [
-    UserNotificationService
+    UserNotificationService,
+    MySwService
   ]
 })
 export class MyNotificationModule {}

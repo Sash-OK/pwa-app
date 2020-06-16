@@ -11,7 +11,7 @@ self.addEventListener('install', (ev) => {
         '/polyfills.js',
         '/styles.js',
         '/vendor.js',
-        '/main.js',
+        '/main.js'
       ]);
     })
   );
@@ -27,9 +27,7 @@ self.addEventListener('activate', ev => {
           return caches.delete(cacheKey);
         }
       })
-    )).then(() => {
-      console.log(VERSION + ' now ready to handle fetches!');
-    })
+    ))
   );
 });
 
@@ -37,7 +35,84 @@ self.addEventListener('fetch', ev => {
   return ev.respondWith(requestHandler(ev.request.url));
 });
 
+self.addEventListener('sync', (ev) => {
+  console.log('sync event', ev);
+  if (ev.tag === 'showNotifications') {
+    ev.waitUntil(syncHandler());
+  }
+});
+
+self.addEventListener('message', (ev) => {
+  ev.waitUntil(showMessage(ev.data));
+});
+
+async function syncHandler() {
+  const notifications = await getNotifications();
+
+  return Promise.all(notifications.map((message) => {
+    return showMessage(message).then(() => deleteNotification(message.id));
+  }));
+}
+
+function showMessage(message) {
+  return new Promise((resolve) => {
+    const messageTime = new Date(message.dateTime).getTime();
+    const currentTime = new Date().getTime();
+    const timeout = messageTime - currentTime;
+    console.log('New Message ', message);
+
+    setTimeout(() => {
+      self.registration.showNotification('My notify', {
+        body: message.message,
+        timestamp: messageTime
+      });
+      resolve();
+    }, timeout > 0 ? timeout : 0);
+  });
+}
+
 async function requestHandler(url) {
   const cached = await caches.match(url);
   return cached || fetch(url);
+}
+
+function openDB(dbName) {
+  return new Promise((resolve, reject) => {
+    const request = this.indexedDB.open(dbName);
+    request.onsuccess = () => {
+      const db = request.result;
+
+      db.onversionchange = () => {
+        db.close();
+        console.log('Refresh the page, DB is outdated');
+      };
+
+      resolve(db);
+    };
+  });
+}
+
+async function getNotifications() {
+  const db = await openDB('my-pwa-store');
+
+  return new Promise((resolve, reject) => {
+    const tableName = 'notifications';
+    const transaction = db.transaction(tableName, 'readonly');
+    const store = transaction.objectStore(tableName);
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function deleteNotification(id) {
+  const db = await openDB('my-pwa-store');
+  const transaction = db.transaction('notifications', 'readwrite');
+  const store = transaction.objectStore('notifications');
+
+  store.delete(id);
+  transaction.oncomplete = (e) => {
+    db.close();
+  };
 }

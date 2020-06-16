@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DBTableNamesModel, DBTableNamesType } from '../models/DB-table-names.model';
+import { NotificationModel } from '../../notification/models/notification.model';
 
 @Injectable()
 export class IndexedDBService {
@@ -51,7 +52,7 @@ export class IndexedDBService {
     });
   }
 
-  public post(data: any, tableName: DBTableNamesType) {
+  public post(data: any, tableName: DBTableNamesType): Observable<NotificationModel> {
     return new Observable((observer: any) => {
       this.openDB().subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readwrite');
@@ -59,7 +60,7 @@ export class IndexedDBService {
         const request = store.add(data);
 
         request.onsuccess = () => {
-          observer.next(request.result);
+          observer.next({...data, id: request.result});
           observer.complete();
         };
 

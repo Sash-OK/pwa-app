@@ -6,7 +6,7 @@ export function initSW() {
           scope: '/'
         })
         .then(
-          (reg) => console.log('Registration succeeded. Scope is', reg.scope),
+          (reg) => console.log('Registration success', reg),
           (error) => console.log('Registration failed with', error)
         );
     });

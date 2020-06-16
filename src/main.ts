@@ -7,8 +7,9 @@ import { initSW } from './sw-reg';
 
 if (environment.production) {
   enableProdMode();
-  initSW();
 }
+
+initSW();
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));

@@ -3,14 +3,14 @@ import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject } from 'rxjs';
 import * as moment from 'moment';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
+import { MySwService } from './my-sw.service';
 
 @Injectable()
 export class UserNotificationService implements OnDestroy {
-  public messages = [];
   private readonly isAPISupported: boolean;
   private hasPermission$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  constructor(private storeSrv: StoreDriverService) {
+  constructor(private storeSrv: StoreDriverService, private sw: MySwService) {
     this.isAPISupported = 'Notification' in window;
   }
 
@@ -31,7 +31,7 @@ export class UserNotificationService implements OnDestroy {
 
   public add(message: NotificationModel) {
     return this.storeSrv.addNotification({...message}).subscribe((data) => {
-      console.log('addNotification', data);
+      this.sw.showNotification(data);
     });
     /*if (this.isAPISupported) {
       this.getPermission();
