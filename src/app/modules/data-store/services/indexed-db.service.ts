@@ -29,9 +29,8 @@ export class IndexedDBService {
         const db = request.result;
 
         if (!db.objectStoreNames.contains(tableName)) {
-          console.log(`Create ${tableName}`);
           db.createObjectStore(tableName, {
-            keyPath: 'id',
+            keyPath: 'temporaryID',
             autoIncrement: true
           });
         }
@@ -52,7 +51,7 @@ export class IndexedDBService {
     });
   }
 
-  public post(data: any, tableName: DBTableNamesType): Observable<NotificationModel> {
+  public post(data: any, tableName: DBTableNamesType): Observable<any> {
     return new Observable((observer: any) => {
       this.openDB().subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readwrite');

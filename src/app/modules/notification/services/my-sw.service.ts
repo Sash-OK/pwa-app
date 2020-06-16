@@ -1,24 +1,20 @@
 import { Injectable } from '@angular/core';
-import { NotificationModel } from '../models/notification.model';
-import { Observable } from 'rxjs';
-import { fromPromise } from 'rxjs/internal-compatibility';
 
 @Injectable()
 export class MySwService {
-  private swReg: ServiceWorkerRegistration = null;
-  private subscription$: Observable<PushSubscription> = null;
+  private readonly syncNotificationsEventName = 'syncPostNotification';
 
-  constructor() {
+  public startSync() {
     navigator.serviceWorker.ready.then((swReg) => {
-      this.swReg = swReg;
-      this.subscription$ = fromPromise(swReg.pushManager.getSubscription());
-      this.swReg.sync.register('showNotifications');
-    });
-  }
+      swReg.sync.getTags().then(
+        tags => {
+          if (tags.includes(this.syncNotificationsEventName)) {
+            return;
+          }
 
-  public showNotification(message: NotificationModel) {
-    if (this.subscription$) {
-      navigator.serviceWorker.controller.postMessage(message);
-    }
+          swReg.sync.register(this.syncNotificationsEventName);
+        }
+      );
+    });
   }
 }

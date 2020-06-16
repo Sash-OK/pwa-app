@@ -3,6 +3,8 @@ import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
 import { catchError, finalize } from 'rxjs/operators';
+import { MySwService } from './my-sw.service';
+import { NotificationApiService } from './notification-api.service';
 
 @Injectable()
 export class UserNotificationService implements OnDestroy {
@@ -12,7 +14,11 @@ export class UserNotificationService implements OnDestroy {
   private readonly isAPISupported: boolean;
   private hasPermission$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  constructor(private storeSrv: StoreDriverService) {
+  constructor(
+    private storeSrv: StoreDriverService,
+    private sw: MySwService,
+    private serverAPI: NotificationApiService
+  ) {
     this.isAPISupported = 'Notification' in window;
   }
 
@@ -39,19 +45,22 @@ export class UserNotificationService implements OnDestroy {
 
   public getList(): Observable<NotificationModel[]> {
     this.startLoading();
-    return this.storeSrv.getNotifications()
+    return this.serverAPI.getNotifications()
       .pipe(finalize(this.finishLoading.bind(this)));
   }
 
-  public add(message: NotificationModel) {
+  public add(notification: NotificationModel) {
     this.startLoading();
-    this.storeSrv.addNotification(message)
+    this.serverAPI.addNotification(notification)
       .pipe(
         finalize(this.finishLoading.bind(this)),
         catchError((error) => {
-          if (error.error.needSync) {
-            debugger;
-          }
+          this.storeSrv.addNotification(notification).subscribe(
+            () => {
+              this.sw.startSync();
+            }
+          );
+
 
           return throwError(error);
         })

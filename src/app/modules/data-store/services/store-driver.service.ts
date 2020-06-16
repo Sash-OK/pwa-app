@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
 import { NotificationModel } from '../../notification/models/notification.model';
 import { Observable } from 'rxjs';
-import { RequestHandlerService } from '../../request/services/request-handler.service';
+import { IndexedDBService } from './indexed-db.service';
+import { DBTableNamesModel } from '../models/DB-table-names.model';
 
 @Injectable()
 export class StoreDriverService {
 
-  constructor(private request: RequestHandlerService) {
+  constructor(private db: IndexedDBService) {
   }
 
-  public addNotification(message: NotificationModel): Observable<NotificationModel> {
-    return this.request.to('notifications_111').post<NotificationModel>(message);
-  }
-
-  public getNotifications(): Observable<NotificationModel[]> {
-    return this.request.to('notifications').get<NotificationModel[]>();
+  public addNotification(notification: NotificationModel): Observable<NotificationModel> {
+    return this.db.post(notification, DBTableNamesModel.notification);
   }
 }

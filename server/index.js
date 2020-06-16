@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const urlBase = '/api';
-const notifications = [];
+let notifications = [];
 let increment = 0;
 
 app.use(cors());
@@ -18,10 +18,19 @@ app.get(`${urlBase}/notifications`, (request, response) => {
   response.send(notifications);
 });
 
+app.get(`${urlBase}/health-check`, (request, response) => {
+  response.send({status: true});
+});
+
 app.post(`${urlBase}/notifications`, (request, response) => {
-  const message = {...request.body, id: increment++};
-  notifications.push(message);
-  response.send(message);
+
+  if (Array.isArray(request.body)) {
+    notifications = [...notifications, ...request.body.map(notification => ({...notification, id: increment++}))]
+  } else {
+    notifications.push({...request.body, id: increment++});
+  }
+
+  response.send(notifications);
 });
 
 app.listen(port, (err) => {

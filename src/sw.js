@@ -7,7 +7,7 @@ self.addEventListener('install', (ev) => {
     caches.open(CACHE_ID).then((cache) => {
       cache.addAll([
         '/',
-        'http://localhost:3000/api/notifications_111',
+        'http://localhost:3000/api/notifications',
         '/runtime.js',
         '/polyfills.js',
         '/styles.js',
@@ -40,6 +40,21 @@ self.addEventListener('fetch', ev => {
   ev.respondWith(resourceRequestHandler(ev.request.url));
 });
 
+self.addEventListener('sync', (ev) => {
+  console.log('sync event', ev);
+  if (ev.tag === 'syncPostNotification') {
+    ev.waitUntil(
+      healthCheck().then(
+        resp => {
+          if (resp.ok) {
+            sendNotifications().then(clearStore);
+          }
+        }
+      )
+    );
+  }
+});
+
 function apiRequestHandler(request) {
   const errorResponse = () => {
     return new Response(JSON.stringify({needSync: true}), {
@@ -47,7 +62,7 @@ function apiRequestHandler(request) {
       status: 500,
       ok: false
     });
-  }
+  };
 
   if (navigator.onLine) {
     if (request.method === 'POST') {
@@ -70,23 +85,21 @@ function apiRequestHandler(request) {
   return errorResponse();
 }
 
-/*self.addEventListener('sync', (ev) => {
-  console.log('sync event', ev);
-  if (ev.tag === 'showNotifications') {
-    ev.waitUntil(syncHandler());
-  }
-});
+async function healthCheck() {
+  let response = await fetch('http://localhost:3000/api/health-check');
+  return response && response.ok;
+}
 
-self.addEventListener('message', (ev) => {
-  ev.waitUntil(showMessage(ev.data));
-});*/
-
-async function syncHandler() {
+async function sendNotifications() {
   const notifications = await getNotifications();
 
-  return Promise.all(notifications.map((message) => {
-    return showMessage(message).then(() => deleteNotification(message.id));
-  }));
+  return fetch('http://localhost:3000/api/notifications', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(notifications.map(it => ({message: it.message, dateTime: it.dateTime})))
+  });
 }
 
 function showMessage(message) {
@@ -141,12 +154,12 @@ async function getNotifications() {
   });
 }
 
-async function deleteNotification(id) {
+async function clearStore() {
   const db = await openDB('my-pwa-store');
   const transaction = db.transaction('notifications', 'readwrite');
   const store = transaction.objectStore('notifications');
 
-  store.delete(id);
+  store.clear();
   transaction.oncomplete = (e) => {
     db.close();
   };

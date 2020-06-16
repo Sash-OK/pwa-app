@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MySwService } from './services/my-sw.service';
 import { RequestModule } from '../request/request.module';
+import { NotificationApiService } from './services/notification-api.service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { RequestModule } from '../request/request.module';
   ],
   providers: [
     UserNotificationService,
-    MySwService
+    NotificationApiService,
+    MySwService,
   ]
 })
 export class MyNotificationModule {}
