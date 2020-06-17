@@ -55,7 +55,7 @@ self.addEventListener('sync', (ev) => {
   }
 });
 
-function apiRequestHandler(request) {
+async function apiRequestHandler(request) {
   const errorResponse = () => {
     return new Response(JSON.stringify({needSync: true}), {
       headers: {'Content-Type': 'application/json'},
@@ -64,25 +64,28 @@ function apiRequestHandler(request) {
     });
   };
 
-  if (navigator.onLine) {
-    if (request.method === 'POST') {
-      return fetch(request.clone())
-        .then(
-          resp => {
-            if (!resp.ok) {
-              throw Error('Error');
-            }
-
-            return resp;
+  if (request.method === 'POST') {
+    return fetch(request.clone())
+      .then(
+        resp => {
+          if (!resp.ok) {
+            throw Error('Error');
           }
-        )
-        .catch(errorResponse);
-    }
 
+          return resp;
+        }
+      )
+      .catch(errorResponse);
+  } else {
+    return handleGetRequest(request);
+  }
+}
+
+async function handleGetRequest(request) {
+  if (navigator.onLine) {
     return fetch(request.clone());
   }
-
-  return errorResponse();
+  return caches.match(request.url);
 }
 
 function healthCheck() {
@@ -136,6 +139,8 @@ function openDB(dbName) {
 
       resolve(db);
     };
+
+    request.onerror = () => reject(request.error);
   });
 }
 
