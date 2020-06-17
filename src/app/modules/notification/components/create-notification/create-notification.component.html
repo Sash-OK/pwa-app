@@ -31,7 +31,7 @@
 
   <div class="app-flex__col">
     <button type="submit"
-            [disabled]="form.invalid || (storing$ | async)"
+            [disabled]="form.invalid || (inProcess$ | async)"
             mat-raised-button
             color="primary">Add
     </button>

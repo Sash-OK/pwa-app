@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateNotificationComponent {
-  public storing$: Observable<boolean> = this.notificationSrv.loading$;
+  public inProcess$: Observable<boolean> = this.notificationSrv.loading$;
   public form = new FormGroup({
     message: new FormControl('', [Validators.required]),
     dateTime: new FormControl('', [Validators.required, MyValidators.dateTime])
