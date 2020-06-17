@@ -9,9 +9,11 @@ import { UserNotificationService } from './modules/notification/services/user-no
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  public list$: Observable<NotificationModel[]> = this.notificationSrv.notifications$;
+  public serverNotificationsList$: Observable<NotificationModel[]> = this.notificationSrv.serverNotifications$;
+  public localNotificationsList$: Observable<NotificationModel[]> = this.notificationSrv.localNotifications$;
 
   constructor(private notificationSrv: UserNotificationService) {
     this.notificationSrv.fetchNotifications();
+    this.notificationSrv.fetchLocalNotifications();
   }
 }

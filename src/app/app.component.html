@@ -5,9 +5,9 @@
 <main class="app-flex content">
   <app-create-notification class="app-flex__col content-item"></app-create-notification>
   <app-notifications-list class="app-flex__col content-item"
-                          [list]="list$ | async"
+                          [list]="serverNotificationsList$ | async"
                           heading="Messages from server"></app-notifications-list>
   <app-notifications-list class="app-flex__col content-item"
-                          [list]="list$ | async"
+                          [list]="localNotificationsList$ | async"
                           heading="Messages from Indexed DB"></app-notifications-list>
 </main>

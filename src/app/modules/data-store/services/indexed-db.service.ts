@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DBTableNamesModel, DBTableNamesType } from '../models/DB-table-names.model';
-import { NotificationModel } from '../../notification/models/notification.model';
 
 @Injectable()
 export class IndexedDBService {
@@ -15,13 +14,13 @@ export class IndexedDBService {
     this.checkTableExist(this.notificationTableName);
   }
 
-  public checkTableExist(tableName: string) {
+  public checkTableExist(tableName: DBTableNamesType) {
     this.openDB(tableName).subscribe((db: any) => {
       console.log(db.objectStoreNames, db.objectStoreNames.contains(tableName));
     });
   }
 
-  public openDB(tableName?: string) {
+  public openDB(tableName?: DBTableNamesType) {
     return new Observable((observer: any) => {
       const request: IDBOpenDBRequest = this.indexedDB.open(this.nameDB);
 
@@ -34,6 +33,8 @@ export class IndexedDBService {
             autoIncrement: true
           });
         }
+
+        this.migrationHandler(ev, tableName);
       };
 
       request.onsuccess = () => {
@@ -59,14 +60,41 @@ export class IndexedDBService {
         const request = store.add(data);
 
         request.onsuccess = () => {
-          observer.next({...data, id: request.result});
+          observer.next();
           observer.complete();
         };
 
         request.onerror = () => {
-          console.log('transaction onerror', request.error);
+          console.log('transaction error', request.error);
         };
       });
     });
+  }
+
+  public getAll<T>(tableName: DBTableNamesType): Observable<T> {
+    return new Observable((observer: any) => {
+      this.openDB().subscribe((db: any) => {
+        const transaction = db.transaction(tableName, 'readonly');
+        const store = transaction.objectStore(tableName);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          observer.next(request.result);
+          observer.complete();
+        };
+
+        request.onerror = () => {
+          console.log('transaction error', request.error);
+        };
+      });
+    });
+  }
+
+  private migrationHandler({oldVersion, newVersion}: IDBVersionChangeEvent, tableName: DBTableNamesType) {
+    if (oldVersion === newVersion) {
+      return;
+    }
+
+    // Migration logic from oldVersion to newVersion
   }
 }

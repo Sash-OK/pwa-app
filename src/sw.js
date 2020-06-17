@@ -85,9 +85,8 @@ function apiRequestHandler(request) {
   return errorResponse();
 }
 
-async function healthCheck() {
-  let response = await fetch('http://localhost:3000/api/health-check');
-  return response && response.ok;
+function healthCheck() {
+  return fetch('http://localhost:3000/api/health-check');
 }
 
 async function sendNotifications() {

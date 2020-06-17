@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 export class MySwService {
   private readonly syncNotificationsEventName = 'syncPostNotification';
 
-  public startSync() {
+  public initSync() {
     navigator.serviceWorker.ready.then((swReg) => {
       swReg.sync.getTags().then(
         tags => {

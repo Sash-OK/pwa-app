@@ -9,7 +9,8 @@ import { NotificationApiService } from './notification-api.service';
 @Injectable()
 export class UserNotificationService implements OnDestroy {
   public loading$ = new BehaviorSubject(null);
-  public notifications$ = new BehaviorSubject([]);
+  public serverNotifications$ = new BehaviorSubject([]);
+  public localNotifications$ = new BehaviorSubject([]);
 
   private readonly isAPISupported: boolean;
   private hasPermission$: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -38,12 +39,22 @@ export class UserNotificationService implements OnDestroy {
   }
 
   public fetchNotifications() {
-    this.getList().subscribe((data: NotificationModel[]) => {
-      this.notifications$.next(data);
+    this.getListFromServer().subscribe((data: NotificationModel[]) => {
+      this.serverNotifications$.next(data);
     });
   }
 
-  public getList(): Observable<NotificationModel[]> {
+  public fetchLocalNotifications() {
+    this.getListFromStore().subscribe((data: NotificationModel[]) => {
+      this.localNotifications$.next(data);
+    });
+  }
+
+  public getListFromStore(): Observable<NotificationModel[]> {
+    return this.storeSrv.getNotifications();
+  }
+
+  public getListFromServer(): Observable<NotificationModel[]> {
     this.startLoading();
     return this.serverAPI.getNotifications()
       .pipe(finalize(this.finishLoading.bind(this)));
@@ -57,7 +68,8 @@ export class UserNotificationService implements OnDestroy {
         catchError((error) => {
           this.storeSrv.addNotification(notification).subscribe(
             () => {
-              this.sw.startSync();
+              this.fetchLocalNotifications();
+              this.sw.initSync();
             }
           );
 

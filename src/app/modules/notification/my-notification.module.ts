@@ -15,7 +15,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker';
-import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -39,18 +38,17 @@ import { MatIconModule } from '@angular/material/icon';
     NgxMatDatetimePickerModule,
     NgxMatDatetimePickerModule,
     NgxMatTimepickerModule,
-    NgxMatMomentModule,
     MatListModule,
     MatIconModule
   ],
   exports: [
     CreateNotificationComponent,
-    NotificationsListComponent,
+    NotificationsListComponent
   ],
   providers: [
     UserNotificationService,
     NotificationApiService,
-    MySwService,
+    MySwService
   ]
 })
 export class MyNotificationModule {}
