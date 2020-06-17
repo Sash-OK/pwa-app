@@ -1,3 +1,7 @@
-<div *ngFor="let item of list$ | async">
-  <app-notification-list-item [item]="item"></app-notification-list-item>
-</div>
+<h1>{{heading}}</h1>
+
+<mat-list>
+  <mat-list-item *ngFor="let item of list" class="list-item">
+    <app-notification-list-item [item]="item" class="app-flex notification"></app-notification-list-item>
+  </mat-list-item>
+</mat-list>

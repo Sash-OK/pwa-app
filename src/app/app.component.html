@@ -1,4 +1,13 @@
-My app
-<app-create-notification></app-create-notification>
+<header>
+  <mat-toolbar color="primary">Notifications</mat-toolbar>
+</header>
 
-<app-notifications-list></app-notifications-list>
+<main class="app-flex content">
+  <app-create-notification class="app-flex__col content-item"></app-create-notification>
+  <app-notifications-list class="app-flex__col content-item"
+                          [list]="list$ | async"
+                          heading="Messages from server"></app-notifications-list>
+  <app-notifications-list class="app-flex__col content-item"
+                          [list]="list$ | async"
+                          heading="Messages from Indexed DB"></app-notifications-list>
+</main>

@@ -1,17 +1,13 @@
-import { Component } from '@angular/core';
-import { UserNotificationService } from '../../services/user-notification.service';
-import { Observable } from 'rxjs';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NotificationModel } from '../../models/notification.model';
 
 @Component({
   selector: 'app-notifications-list',
   templateUrl: './notifications-list.component.html',
-  styleUrls: ['./notifications-list.component.css']
+  styleUrls: ['./notifications-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotificationsListComponent {
-  public list$: Observable<NotificationModel[]> = this.notificationSrv.notifications$;
-
-  constructor(private notificationSrv: UserNotificationService) {
-    this.notificationSrv.fetchNotifications();
-  }
+  @Input() public list: NotificationModel[];
+  @Input() public heading: string;
 }

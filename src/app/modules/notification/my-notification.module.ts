@@ -9,6 +9,15 @@ import { CommonModule } from '@angular/common';
 import { MySwService } from './services/my-sw.service';
 import { RequestModule } from '../request/request.module';
 import { NotificationApiService } from './services/notification-api.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatButtonModule } from '@angular/material/button';
+import { MatNativeDateModule } from '@angular/material/core';
+import { NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker';
+import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -21,6 +30,18 @@ import { NotificationApiService } from './services/notification-api.service';
     ReactiveFormsModule,
     CommonModule,
     RequestModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatNativeDateModule,
+    NgxMatNativeDateModule,
+    NgxMatDatetimePickerModule,
+    NgxMatDatetimePickerModule,
+    NgxMatTimepickerModule,
+    NgxMatMomentModule,
+    MatListModule,
+    MatIconModule
   ],
   exports: [
     CreateNotificationComponent,

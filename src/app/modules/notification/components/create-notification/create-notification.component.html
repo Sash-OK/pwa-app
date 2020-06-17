@@ -1,9 +1,39 @@
-<form [formGroup]="form" (ngSubmit)="addNotification()">
-  <label for="msg">message</label>
-  <input id="msg" type="text" required formControlName="message">
+<h1>Create message</h1>
 
-  <label for="datetime">datetime</label>
-  <input id="datetime" type="datetime-local" required formControlName="dateTime">
+<form [formGroup]="form"
+      (ngSubmit)="addNotification()"
+      autocomplete="off"
+      class="app-flex app-flex--v-center">
+  <mat-form-field class="app-flex__col text-input">
+    <input matInput
+           placeholder="Enter message"
+           required
+           formControlName="message">
+  </mat-form-field>
 
-  <button type="submit" [disabled]="form.invalid || (storing$ | async)">Add</button>
+  <mat-form-field class="app-flex__col">
+    <input matInput
+           [ngxMatDatetimePicker]="picker"
+           (focus)="picker.open()"
+           required
+           placeholder="Choose a date"
+           formControlName="dateTime">
+    <mat-datepicker-toggle matSuffix
+                           [for]="picker"></mat-datepicker-toggle>
+    <ngx-mat-datetime-picker #picker
+                             [showSpinners]="false"
+                             [showSeconds]="false"
+                             [stepHour]="1"
+                             [stepMinute]="1"
+                             [color]="'primary'">
+    </ngx-mat-datetime-picker>
+  </mat-form-field>
+
+  <div class="app-flex__col">
+    <button type="submit"
+            [disabled]="form.invalid || (storing$ | async)"
+            mat-raised-button
+            color="primary">Add
+    </button>
+  </div>
 </form>
