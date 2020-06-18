@@ -56,7 +56,7 @@ export class UserNotificationService implements OnDestroy {
     this.sw.notification().pipe(
       delay(moment(notification.dateTime).valueOf() - moment.now().valueOf())
     ).subscribe((dn) => {
-      dn.withOptions(NotificationAdapter.createOptions(notification))
+      dn.withOptions(NotificationAdapter.getSimple(notification))
         .show().subscribe(() => console.log('Message should be visible', notification));
     });
   }

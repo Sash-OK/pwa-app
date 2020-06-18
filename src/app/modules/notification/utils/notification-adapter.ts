@@ -11,7 +11,7 @@ class Options implements NotificationOptions {
 }
 
 export class NotificationAdapter {
-  static createOptions(notification: NotificationModel): NotificationOptions {
+  static getSimple(notification: NotificationModel): NotificationOptions {
     return new Options(notification.message, notification.dateTime);
   }
 }
