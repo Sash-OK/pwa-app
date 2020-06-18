@@ -55,35 +55,38 @@ self.addEventListener('sync', (ev) => {
   }
 });
 
+self.addEventListener('notificationclick', (event) => {
+  if (!event.action) {
+    console.log('Click by notification');
+    return;
+  }
+
+  switch(event.action) {
+    case 'dismiss-action':
+      event.notification.close();
+      console.log('Close notification clicked');
+      break;
+    default:
+      console.log('Was clicked an unknown action');
+      break;
+  }
+});
+
 async function onPostSuccess() {
   await clearStore();
   notifyApp('syncPostNotification');
 }
 
 async function apiRequestHandler(request) {
-  const errorResponse = () => {
-    return new Response(JSON.stringify({needSync: true}), {
-      headers: {'Content-Type': 'application/json'},
-      status: 500,
-      ok: false
-    });
-  };
-
   if (request.method === 'POST') {
-    return fetch(request.clone())
-      .then(
-        resp => {
-          if (!resp.ok) {
-            throw Error('Error');
-          }
-
-          return resp;
-        }
-      )
-      .catch(errorResponse);
+    return handlePostRequest(request);
   } else {
     return handleGetRequest(request).then((response) => cacheResponse(request, response));
   }
+}
+
+async function handlePostRequest(request) {
+  return fetch(request.clone());
 }
 
 async function handleGetRequest(request) {
@@ -123,12 +126,12 @@ async function notifyApp(type) {
   });
   windowClients.forEach((windowClient) => {
     windowClient.postMessage({
-      type: type,
+      type: type
     });
   });
 }
 
-function showMessage(message) {
+function showMessage(message, timeout) {
   return new Promise((resolve) => {
     const messageTime = new Date(message.dateTime).getTime();
     const currentTime = new Date().getTime();
@@ -188,7 +191,5 @@ async function clearStore() {
   const store = transaction.objectStore('notifications');
 
   store.clear();
-  transaction.oncomplete = (e) => {
-    db.close();
-  };
+  transaction.oncomplete = (e) => db.close();
 }

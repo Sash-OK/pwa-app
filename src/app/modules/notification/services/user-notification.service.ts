@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
-import { catchError, delay, filter, finalize, tap } from 'rxjs/operators';
+import { catchError, delay, filter, finalize } from 'rxjs/operators';
 import { SwDriverService } from '../../my-sw/services/sw-driver.service';
 import { NotificationApiService } from './notification-api.service';
 import { NotificationAdapter } from '../utils/notification-adapter';
@@ -16,12 +16,11 @@ export class UserNotificationService implements OnDestroy {
 
   private readonly isAPISupported: boolean;
   private readonly syncNotificationsEventName = 'syncPostNotification';
-  private hasPermission$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(
     private storeSrv: StoreDriverService,
     private sw: SwDriverService,
-    private serverAPI: NotificationApiService
+    private api: NotificationApiService
   ) {
     this.isAPISupported = 'Notification' in window;
 
@@ -48,23 +47,26 @@ export class UserNotificationService implements OnDestroy {
 
   public getListFromServer(): Observable<NotificationModel[]> {
     this.startLoading();
-    return this.serverAPI.getNotifications()
+    return this.api.getNotifications()
       .pipe(finalize(this.finishLoading.bind(this)));
   }
 
   public showNotification(notification: NotificationModel) {
+    const timeout = moment(notification.dateTime).valueOf() - moment.now().valueOf();
     this.sw.notification().pipe(
-      delay(moment(notification.dateTime).valueOf() - moment.now().valueOf())
+      delay(timeout > 0 ? timeout : 0)
     ).subscribe((dn) => {
       dn.withOptions(NotificationAdapter.getSimple(notification))
-        .show().subscribe(() => console.log('Message should be visible', notification));
+        .withDismiss()
+        .show()
+        .subscribe(() => console.log('Message should be visible', notification));
     });
   }
 
   public add(notification: NotificationModel) {
     this.startLoading();
 
-    this.serverAPI.addNotification(notification)
+    this.api.addNotification(notification)
       .pipe(
         finalize(this.finishLoading.bind(this)),
         catchError((error) => {
@@ -80,7 +82,6 @@ export class UserNotificationService implements OnDestroy {
   }
 
   public ngOnDestroy() {
-    this.hasPermission$.complete();
     this.loading$.next(null);
     this.loading$.complete();
   }

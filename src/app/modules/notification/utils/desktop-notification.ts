@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 export class DesktopNotification {
   private options: NotificationOptions = {
-    badge: '/assets/icons/icon-192.png',
+    badge: '/assets/icons/icon-192.png'
   };
 
   constructor(private swReg: ServiceWorkerRegistration) {}
@@ -15,6 +15,19 @@ export class DesktopNotification {
 
   public withIcon(iconPath: string) {
     this.options = {...this.options, icon: iconPath};
+    return this;
+  }
+
+  public withDismiss() {
+    this.options = {
+      ...this.options,
+      actions: [
+        {
+          action: 'dismiss-action',
+          title: 'Dismiss'
+        }
+      ]
+    };
     return this;
   }
 
