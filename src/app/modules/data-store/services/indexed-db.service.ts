@@ -4,7 +4,6 @@ import { DBTableNamesModel, DBTableNamesType } from '../models/DB-table-names.mo
 
 @Injectable()
 export class IndexedDBService {
-  public db: IDBDatabase;
   private indexedDB: IDBFactory;
   private readonly nameDB = 'my-pwa-store';
   private readonly notificationTableName: DBTableNamesType = DBTableNamesModel.notification;

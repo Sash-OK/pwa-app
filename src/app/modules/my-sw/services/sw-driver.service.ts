@@ -2,7 +2,7 @@ import { ApplicationRef, Injectable, NgZone } from '@angular/core';
 import { filter, take } from 'rxjs/operators';
 import { fromPromise } from 'rxjs/internal-compatibility';
 import { fromEvent, NEVER, Observable, Subject } from 'rxjs';
-import { DesktopNotification } from '../utils/desktop-notification';
+import { DesktopNotification } from '../../notification/utils/desktop-notification';
 
 @Injectable()
 export class SwDriverService {

@@ -3,7 +3,7 @@ import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
 import { catchError, delay, filter, finalize, tap } from 'rxjs/operators';
-import { SwDriverService } from './sw-driver.service';
+import { SwDriverService } from '../../my-sw/services/sw-driver.service';
 import { NotificationApiService } from './notification-api.service';
 import { NotificationAdapter } from '../utils/notification-adapter';
 import * as moment from 'moment';

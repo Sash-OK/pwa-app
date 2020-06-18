@@ -9,11 +9,11 @@ export class RequestHandlerService {
   constructor(private http: HttpClient) { }
 
   public to(url: string) {
-    return new BuildRequest(this.http, `${this.apiUrl}/${url}`);
+    return new BuildHttpRequest(this.http, `${this.apiUrl}/${url}`);
   }
 }
 
-class BuildRequest {
+class BuildHttpRequest {
   constructor(private http: HttpClient, private url: string) {}
 
   get<T>(): Observable<T> {

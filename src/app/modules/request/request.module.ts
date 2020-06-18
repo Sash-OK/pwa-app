@@ -7,7 +7,7 @@ import { RequestHandlerService } from './services/request-handler.service';
   declarations: [],
   imports: [
     CommonModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [
     RequestHandlerService,
