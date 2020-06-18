@@ -41,6 +41,22 @@ export class SwDriverService {
     });
   }
 
+  public notifySW(tag: string) {
+    this.registeredSW.subscribe(reg => {
+      const sw = reg.installing || reg.waiting || reg.active;
+      sw.postMessage(tag);
+    });
+  }
+
+  public notification(): Observable<DesktopNotification> {
+    return new Observable((observer) => {
+      this.registeredSW.subscribe(reg => {
+        observer.next(new DesktopNotification(reg));
+        observer.complete();
+      });
+    });
+  }
+
   private listenMessageFromSW() {
     fromEvent<MessageEvent>(navigator.serviceWorker, 'message').subscribe(ev => {
       this.ngZone.run(() => this.messages$.next(ev));
@@ -53,14 +69,5 @@ export class SwDriverService {
         (reg) => this.listenMessageFromSW(),
         (error) => console.log('Registration failed', error)
       );
-  }
-
-  public notification(): Observable<DesktopNotification> {
-    return new Observable((observer) => {
-      this.registeredSW.subscribe(reg => {
-        observer.next(new DesktopNotification(reg));
-        observer.complete();
-      });
-    });
   }
 }

@@ -72,6 +72,10 @@ self.addEventListener('notificationclick', (event) => {
   }
 });
 
+self.addEventListener('message', (event) => {
+  console.log('Message from App', event);
+});
+
 async function onPostSuccess() {
   await clearStore();
   notifyApp('syncPostNotification');
