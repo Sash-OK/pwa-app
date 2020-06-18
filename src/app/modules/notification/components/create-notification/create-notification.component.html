@@ -21,8 +21,9 @@
     <mat-datepicker-toggle matSuffix
                            [for]="picker"></mat-datepicker-toggle>
     <ngx-mat-datetime-picker #picker
-                             [showSpinners]="false"
-                             [showSeconds]="false"
+                             [showSpinners]="true"
+                             [showSeconds]="true"
+                             [enableMeridian]="false"
                              [stepHour]="1"
                              [stepMinute]="1"
                              [color]="'primary'">

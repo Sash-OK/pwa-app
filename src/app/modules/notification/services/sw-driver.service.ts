@@ -2,6 +2,7 @@ import { ApplicationRef, Injectable, NgZone } from '@angular/core';
 import { filter, take } from 'rxjs/operators';
 import { fromPromise } from 'rxjs/internal-compatibility';
 import { fromEvent, NEVER, Observable, Subject } from 'rxjs';
+import { DesktopNotification } from '../utils/desktop-notification';
 
 @Injectable()
 export class SwDriverService {
@@ -52,5 +53,14 @@ export class SwDriverService {
         (reg) => this.listenMessageFromSW(),
         (error) => console.log('Registration failed', error)
       );
+  }
+
+  public notification(): Observable<DesktopNotification> {
+    return new Observable((observer) => {
+      this.registeredSW.subscribe(reg => {
+        observer.next(new DesktopNotification(reg));
+        observer.complete();
+      });
+    });
   }
 }

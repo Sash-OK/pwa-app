@@ -2,9 +2,11 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { NotificationModel } from '../models/notification.model';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
-import { catchError, filter, finalize } from 'rxjs/operators';
+import { catchError, delay, filter, finalize, tap } from 'rxjs/operators';
 import { SwDriverService } from './sw-driver.service';
 import { NotificationApiService } from './notification-api.service';
+import { NotificationAdapter } from '../utils/notification-adapter';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserNotificationService implements OnDestroy {
@@ -50,8 +52,18 @@ export class UserNotificationService implements OnDestroy {
       .pipe(finalize(this.finishLoading.bind(this)));
   }
 
+  public showNotification(notification: NotificationModel) {
+    this.sw.notification().pipe(
+      delay(moment(notification.dateTime).valueOf() - moment.now().valueOf())
+    ).subscribe((dn) => {
+      dn.withOptions(NotificationAdapter.createOptions(notification))
+        .show().subscribe(() => console.log('Message should be visible', notification));
+    });
+  }
+
   public add(notification: NotificationModel) {
     this.startLoading();
+
     this.serverAPI.addNotification(notification)
       .pipe(
         finalize(this.finishLoading.bind(this)),
@@ -61,7 +73,10 @@ export class UserNotificationService implements OnDestroy {
           return throwError(error);
         })
       )
-      .subscribe(this.fetchNotifications.bind(this));
+      .subscribe(() => {
+        this.fetchNotifications();
+        this.showNotification(notification);
+      });
   }
 
   public ngOnDestroy() {
@@ -74,6 +89,7 @@ export class UserNotificationService implements OnDestroy {
     this.storeSrv.addNotification(notification).subscribe(
       () => {
         this.fetchLocalNotifications();
+        this.showNotification(notification);
         this.sw.initSync(this.syncNotificationsEventName);
       }
     );
