@@ -47,13 +47,18 @@ self.addEventListener('sync', (ev) => {
       healthCheck().then(
         resp => {
           if (resp.ok) {
-            sendNotifications().then(clearStore);
+            postNotifications().then(onPostSuccess);
           }
         }
       )
     );
   }
 });
+
+async function onPostSuccess() {
+  await clearStore();
+  notifyApp('syncPostNotification');
+}
 
 async function apiRequestHandler(request) {
   const errorResponse = () => {
@@ -77,7 +82,7 @@ async function apiRequestHandler(request) {
       )
       .catch(errorResponse);
   } else {
-    return handleGetRequest(request);
+    return handleGetRequest(request).then((response) => cacheResponse(request, response));
   }
 }
 
@@ -88,11 +93,18 @@ async function handleGetRequest(request) {
   return caches.match(request.url);
 }
 
+async function cacheResponse(request, response) {
+  const cache = await caches.open(CACHE_ID);
+  await cache.put(request, response.clone());
+
+  return response;
+}
+
 function healthCheck() {
   return fetch('http://localhost:3000/api/health-check');
 }
 
-async function sendNotifications() {
+async function postNotifications() {
   const notifications = await getNotifications();
 
   return fetch('http://localhost:3000/api/notifications', {
@@ -101,6 +113,18 @@ async function sendNotifications() {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(notifications.map(it => ({message: it.message, dateTime: it.dateTime})))
+  });
+}
+
+async function notifyApp(type) {
+  const windowClients = await self.clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true
+  });
+  windowClients.forEach((windowClient) => {
+    windowClient.postMessage({
+      type: type,
+    });
   });
 }
 
