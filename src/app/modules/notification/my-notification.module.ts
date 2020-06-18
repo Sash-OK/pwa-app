@@ -17,12 +17,14 @@ import { NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerMod
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MySwModule } from '../my-sw/my-sw.module';
+import { DatePipe } from './pipes/date.pipe';
 
 @NgModule({
   declarations: [
     CreateNotificationComponent,
     NotificationsListComponent,
-    NotificationListItemComponent
+    NotificationListItemComponent,
+    DatePipe
   ],
   imports: [
     DataStoreModule,
