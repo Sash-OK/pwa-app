@@ -10,7 +10,7 @@ export class IndexedDBService {
 
   constructor() {
     this.indexedDB = window.indexedDB;
-    this.checkTableExist(this.notificationTableName);
+    // this.checkTableExist(this.notificationTableName);
   }
 
   public checkTableExist(tableName: DBTableNamesType) {
@@ -53,7 +53,7 @@ export class IndexedDBService {
 
   public post(data: any, tableName: DBTableNamesType): Observable<any> {
     return new Observable((observer: any) => {
-      this.openDB().subscribe((db: any) => {
+      this.openDB(tableName).subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readwrite');
         const store = transaction.objectStore(tableName);
         const request = store.add(data);
@@ -72,7 +72,7 @@ export class IndexedDBService {
 
   public getAll<T>(tableName: DBTableNamesType): Observable<T> {
     return new Observable((observer: any) => {
-      this.openDB().subscribe((db: any) => {
+      this.openDB(tableName).subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readonly');
         const store = transaction.objectStore(tableName);
         const request = store.getAll();
