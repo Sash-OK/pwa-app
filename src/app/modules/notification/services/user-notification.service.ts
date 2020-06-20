@@ -53,14 +53,14 @@ export class UserNotificationService implements OnDestroy {
 
   public showNotification(notification: NotificationModel) {
     const timeout = moment(notification.dateTime).valueOf() - moment.now().valueOf();
-    this.sw.notification().pipe(
-      delay(timeout > 0 ? timeout : 0)
-    ).subscribe((dn) => {
-      dn.withOptions(NotificationAdapter.getSimple(notification))
-        .withDismiss()
-        .show()
-        .subscribe(() => console.log('Message should be visible', notification));
-    });
+    this.sw.notification()
+      .pipe(delay(timeout > 0 ? timeout : 0))
+      .subscribe((dn) => {
+        dn.withOptions(NotificationAdapter.getSimple(notification))
+          .withDismiss()
+          .show()
+          .subscribe(() => console.log('Message should be visible', notification));
+      });
   }
 
   public add(notification: NotificationModel) {
