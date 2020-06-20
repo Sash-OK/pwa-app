@@ -10,31 +10,13 @@ export class IndexedDBService {
 
   constructor() {
     this.indexedDB = window.indexedDB;
-    // this.checkTableExist(this.notificationTableName);
   }
 
-  public checkTableExist(tableName: DBTableNamesType) {
-    this.openDB(tableName).subscribe((db: any) => {
-      console.log(db.objectStoreNames, db.objectStoreNames.contains(tableName));
-    });
-  }
-
-  public openDB(tableName?: DBTableNamesType) {
+  public openDB() {
     return new Observable((observer: any) => {
-      const request: IDBOpenDBRequest = this.indexedDB.open(this.nameDB);
+      const request: IDBOpenDBRequest = this.indexedDB.open(this.nameDB, 1);
 
-      request.onupgradeneeded = (ev: IDBVersionChangeEvent) => {
-        const db = request.result;
-
-        if (!db.objectStoreNames.contains(tableName)) {
-          db.createObjectStore(tableName, {
-            keyPath: 'temporaryID',
-            autoIncrement: true
-          });
-        }
-
-        this.migrationHandler(ev, tableName);
-      };
+      request.onupgradeneeded = (ev: IDBVersionChangeEvent) => this.migrationHandler(ev, request.result);
 
       request.onsuccess = () => {
         const db = request.result;
@@ -53,7 +35,7 @@ export class IndexedDBService {
 
   public post(data: any, tableName: DBTableNamesType): Observable<any> {
     return new Observable((observer: any) => {
-      this.openDB(tableName).subscribe((db: any) => {
+      this.openDB().subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readwrite');
         const store = transaction.objectStore(tableName);
         const request = store.add(data);
@@ -72,7 +54,7 @@ export class IndexedDBService {
 
   public getAll<T>(tableName: DBTableNamesType): Observable<T> {
     return new Observable((observer: any) => {
-      this.openDB(tableName).subscribe((db: any) => {
+      this.openDB().subscribe((db: any) => {
         const transaction = db.transaction(tableName, 'readonly');
         const store = transaction.objectStore(tableName);
         const request = store.getAll();
@@ -89,11 +71,16 @@ export class IndexedDBService {
     });
   }
 
-  private migrationHandler({oldVersion, newVersion}: IDBVersionChangeEvent, tableName: DBTableNamesType) {
+  private migrationHandler({oldVersion, newVersion}: IDBVersionChangeEvent, db) {
     if (oldVersion === newVersion) {
       return;
     }
 
-    // Migration logic from oldVersion to newVersion
+    if (oldVersion === 0 && newVersion === 1) {
+      db.createObjectStore(this.notificationTableName, {
+        keyPath: 'temporaryID',
+        autoIncrement: true
+      });
+    }
   }
 }

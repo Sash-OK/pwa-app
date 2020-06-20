@@ -61,7 +61,7 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  switch(event.action) {
+  switch (event.action) {
     case 'dismiss-action':
       event.notification.close();
       console.log('Close notification clicked');
@@ -75,6 +75,10 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('message', (event) => {
   console.log('Message from App', event);
 });
+
+function regSync() {
+  self.registration.sync.register('syncPostNotification');
+}
 
 async function onPostSuccess() {
   await clearStore();
@@ -90,7 +94,22 @@ async function apiRequestHandler(request) {
 }
 
 async function handlePostRequest(request) {
-  return fetch(request.clone());
+  return fetch(request.clone()).catch(
+    () => {
+      return request.json().then(notification => {
+        return addMessageToDB(notification).then(() => {
+          regSync();
+
+          return Promise.resolve(new Response(
+            JSON.stringify(notification),
+            {
+              status: 200
+            }
+          ));
+        });
+      });
+    }
+  );
 }
 
 async function handleGetRequest(request) {
@@ -170,6 +189,21 @@ function openDB(dbName) {
 
       resolve(db);
     };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function addMessageToDB(notification) {
+  const db = await openDB('my-pwa-store');
+
+  return new Promise((resolve, reject) => {
+    const tableName = 'notifications';
+    const transaction = db.transaction(tableName, 'readwrite');
+    const store = transaction.objectStore(tableName);
+    const request = store.add(notification);
+
+    request.onsuccess = resolve;
 
     request.onerror = () => reject(request.error);
   });

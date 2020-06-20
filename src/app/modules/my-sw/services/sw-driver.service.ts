@@ -50,7 +50,7 @@ export class SwDriverService {
 
   public notification(): Observable<DesktopNotification> {
     return new Observable((observer) => {
-      this.registeredSW.subscribe(reg => {
+      this.registeredSW.subscribe((reg) => {
         observer.next(new DesktopNotification(reg));
         observer.complete();
       });

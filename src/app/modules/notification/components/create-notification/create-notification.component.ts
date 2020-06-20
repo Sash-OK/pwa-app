@@ -13,8 +13,8 @@ import { Observable } from 'rxjs';
 export class CreateNotificationComponent {
   public inProcess$: Observable<boolean> = this.notificationSrv.loading$;
   public form = new FormGroup({
-    message: new FormControl('', [Validators.required]),
-    dateTime: new FormControl('', [Validators.required, MyValidators.dateTime])
+    message: new FormControl('Test message', [Validators.required]),
+    dateTime: new FormControl(new Date(), [Validators.required, MyValidators.dateTime])
   });
 
   constructor(private notificationSrv: UserNotificationService) { }

@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { NotificationModel } from '../models/notification.model';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { StoreDriverService } from '../../data-store/services/store-driver.service';
-import { catchError, delay, filter, finalize } from 'rxjs/operators';
+import { delay, filter, finalize } from 'rxjs/operators';
 import { SwDriverService } from '../../my-sw/services/sw-driver.service';
 import { NotificationApiService } from './notification-api.service';
 import { NotificationAdapter } from '../utils/notification-adapter';
@@ -67,14 +67,7 @@ export class UserNotificationService implements OnDestroy {
     this.startLoading();
 
     this.api.addNotification(notification)
-      .pipe(
-        finalize(this.finishLoading.bind(this)),
-        catchError((error) => {
-          this.addErrorHandler(notification);
-
-          return throwError(error);
-        })
-      )
+      .pipe(finalize(this.finishLoading.bind(this)))
       .subscribe(() => {
         this.fetchNotifications();
         this.showNotification(notification);
